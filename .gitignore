@@ -1,0 +1,4 @@
+.nit_compile
+art/images/*
+tools/export.log
+bin/*
