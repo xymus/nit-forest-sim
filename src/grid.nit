@@ -130,14 +130,6 @@ class Node[ E ]
     end
 end
 
-#class Neighbour
-#special Collection
-#    redef fun iterate
-#       !each(e: E)
-#    do
-#    end
-#end
-
 class Grid[ E ]
     var nodes : HashMap[ Point, Node[ E ] ] = new HashMap[ Point, Node[ E ] ]()
     
