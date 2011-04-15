@@ -11,7 +11,7 @@ class Point
     
     redef fun hash
     do
-        return x * 100000 + y
+        return x * 65536 + y
     end
     
     redef fun to_s
