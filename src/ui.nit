@@ -60,7 +60,7 @@ class ForestUi
     end
 end
 
-var img_dir =  "/home/xymus/projects/nsf/art/images/"
+var img_dir = "PWD".to_symbol.environ + "/art/images/"
 var images = new HashMap[String,Image]
 
 images[ "trunk" ] = new Image.from_file( img_dir + "trunk.png" )
