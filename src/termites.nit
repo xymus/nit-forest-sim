@@ -53,29 +53,31 @@ class RandomTermiteSeeder
 special Bucketable[ Forest ]
     redef fun do_turn( turn )
     do
-        var otree_key = turn.game.trees.length.rand
-        var original_tree = turn.game.trees[ otree_key ]
+		if not turn.game.trees.is_empty then
+			var otree_key = turn.game.trees.length.rand
+			var original_tree = turn.game.trees[ otree_key ]
+			
+			var pos = original_tree.ground
+			
+			#print "seeding at {pos.position}"
+		   
+			var e = new TermiteAppearanceEvent( pos )
+			turn.events.add( e )
+			
+			# spawn termites
+			var termite
+			for i in [ 0 .. 30 [
+			do
+				termite = new Termite( pos )
+				turn.game.buckets.add_at( termite, turn.tick+1 )
+				turn.events.add( new TermiteBirthEvent( termite ) )
+			end
         
-        var pos = original_tree.ground
-        
-        #print "seeding at {pos.position}"
-       
-        var e = new TermiteAppearanceEvent( pos )
-        turn.events.add( e )
-        
-        # spawn termites
-        var termite
-        for i in [ 0 .. 30 [
-        do
-            termite = new Termite( pos )
-            turn.game.buckets.add_at( termite, turn.tick+1 )
-            turn.events.add( new TermiteBirthEvent( termite ) )
-        end
-        
-        # prepare next outbreak
-        var delai = 10000/turn.game.trees.length # 100+400 .rand
-        if delai == 0 then delai = 1
-        turn.act_in( self, delai )
+			# prepare next outbreak
+			var delai = 10000/turn.game.trees.length # 100+400 .rand
+			if delai == 0 then delai = 1
+			turn.act_in( self, delai )
+		end
     end
 end
 
