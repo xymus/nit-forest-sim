@@ -3,6 +3,7 @@
 #ifndef sockets_IMPL_NIT_H
 #define sockets_IMPL_NIT_H
 
+#undef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 1
 #include <sys/types.h>
 #include <stdio.h>
