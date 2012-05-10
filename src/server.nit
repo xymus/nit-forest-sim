@@ -190,6 +190,8 @@ var shutdown = false
 # begin play
 while not shutdown
 do
+	var clock = new Clock
+	
     # accept new clients
     var comm_socket : nullable CommunicationSocket = null
    #print "accepting"
@@ -258,6 +260,11 @@ do
         
         client.connection.write( b.to_s )
     end
+    
+    # sleep to regulate turn time
+	var ens = clock.elapsed_nanosec
+	var left = 33333-ens
+	if left > 0 then left.nanosleep
 end     
 
 listening_socket.close
