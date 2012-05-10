@@ -21,6 +21,9 @@ extern SDLDisplay
     
     fun width : Int is extern
     fun height : Int is extern
+    
+    fun fill_rect( rect : Rectangle, r, g, b : Int ) is extern
+    
 	#fun blit_resize( img : Image, dest : Rectangle ) is extern 
 	
 	#fun load_image( path : String ) : Image is extern
@@ -31,7 +34,7 @@ extern SDLDisplay
 		var events = new List[ Event ]
 		loop do
 			new_event = poll_event
-			if new_event isa Event then # new_event != null then
+			if new_event != null then # new_event isa Event then #
 				events.add( new_event )
 			else
 				break
@@ -42,7 +45,7 @@ extern SDLDisplay
 	
 	private fun poll_event : nullable Event is extern import KeyboardEvent, MouseEvent, String::from_cstring, MouseEvent as (nullable Event), KeyboardEvent as (nullable Event)
 	
-	fun spacebar_is_pressed : Bool is extern
+	fun spacebar_is_pressed : Bool is extern # TODO remove
 end
 
 extern Image
@@ -67,6 +70,7 @@ extern Image
     fun width : Int is extern
     fun height : Int is extern
     
+    fun is_ok : Bool do return true # TODO
     
     #fun get_subimage( clip : Rectangle ) : Image is extern
 end
@@ -92,39 +96,12 @@ extern Rectangle
     fun destroy is extern
 end
 
-#universal Point special Pointer
-#	new ( x : Int, y : Int ) is extern
-	#new is extern
-
-    #readable writable var _x, _y : Int is extern
-#	fun x=( v : Int ) is extern
-#	fun x : Int is extern
-
-#	fun y=( v : Int ) is extern
-#	fun y : Int is extern
-    
-#    fun destroy is extern
-#end
-
-# valid but unused
-#class Point
-#	readable var _x : Int
-#	readable var _y : Int
-#	
-#	init ( x : Int, y : Int )
-#	do
-#		_x = x
-#		_y = y
-#	end
-#end
-
 
 class Event
-	#fun isa_mouse_event : Bool is extern
-	#fun isa_keyboard_event : Bool is extern
 end
 
-class MouseEvent special Event
+class MouseEvent
+special Event
 	readable var _x : Int
 	readable var _y : Int
 	readable var _button : Int
@@ -151,7 +128,8 @@ class MouseEvent special Event
 	#init centered_to( x : Int, y : Int )
 end
 
-class KeyboardEvent special Event
+class KeyboardEvent
+special Event
 	readable var _key_name : String
 	readable var _down : Bool
 	fun up : Bool do return not down
@@ -172,44 +150,50 @@ class KeyboardEvent special Event
 	end
 end
 
+redef class Int
+	fun delay is extern
+end
 
-#universal Event special Pointer
-	#fun isa_mouse_event : Bool is extern
-	#fun isa_keyboard_event : Bool is extern
-#end
-
-#universal MouseEvent special Event
-#	fun x : Int is extern
-#	fun y : Int is extern
-#	fun button : Int is extern
-#	fun down : Bool is extern
+extern Font
+	new ( name : String, points : Int ) is extern import String::to_cstring
 	
-#	redef fun to_s
+	fun destroy is extern
+	
+	fun render( text : String, r, g, b : Int ) : Image is extern import String::to_cstring
+	
+	# TODO reactivate fun below when updating libsdl_ttf to 2.0.10 or above
+	#fun outline : Int is extern # TODO check to make inline/nitside only
+	#fun outline=( v : Int ) is extern
+	
+	#fun kerning : Bool is extern
+	#fun kerning=( v : Bool ) is extern
+	
+	# Maximum pixel height of all glyphs of this font.
+	fun height : Int is extern
+	
+	fun ascent : Int is extern
+	
+	fun descent : Int is extern
+	
+	# Get the recommended pixel height of a rendered line of text of the loaded font. This is usually larger than the Font::height.
+	fun line_skip : Int is extern
+	
+	fun is_fixed_width : Bool is extern
+	fun family_name : nullable String is extern import String::to_cstring, String as nullable
+	fun style_name : nullable String is extern import String::to_cstring, String as nullable
+	
+	fun width_of( text : String ) : Int is extern import String::from_cstring
+	
+#	fun render_within( text : String, width, height : Int ) : Image
 #	do
-#		if down then
-#			return "MouseEvent button {button} down at {x}, {y}"
-#		else
-#			return "MouseEvent button {button} up at {x}, {y}"
-#		end
+#		return 
 #	end
-#end
+end
 
-#universal KeyboardEvent special Event
-#	fun key_name : String is extern import String::from_cstring
-#	fun down : Bool is extern
-#	fun up : Bool do return not down
-#	
-#	redef fun to_s
-#	do
-#		if down then
-#			return "KeyboardEvent key {key_name} down"
-#		else
-#			return "KeyboardEvent key {key_name} up"
-#		end
-#	end
-#end
+#extern Color
 
-#universal SDL
+#	init  # SDL_MapRGB(recv->format,r,g,b)
+#end
 
 # test
 

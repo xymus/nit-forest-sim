@@ -4,12 +4,15 @@
 #ifndef sdl_IMPL_NIT_H
 #define sdl_IMPL_NIT_H
 
+#include <unistd.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
 
 #define SDLDisplay SDL_Surface*
 #define Image SDL_Surface*
 #define Rectangle SDL_Rect*
+#define Font TTF_Font*
 
 #include <sdl._nitni.h>
 #include <nit_common.h>
@@ -21,6 +24,7 @@ void SDLDisplay_blit___impl( SDLDisplay recv, Image img, bigint x, bigint y );
 void SDLDisplay_clear___impl( SDLDisplay recv, long int r, long int g, long int b );
 bigint SDLDisplay_width___impl( SDLDisplay recv );
 bigint SDLDisplay_height___impl( SDLDisplay recv );
+void SDLDisplay_fill_rect___impl( SDLDisplay recv, Rectangle rect, long int r, long int g, long int b );
 nullable_Event SDLDisplay_poll_event___impl( SDLDisplay recv );
 int SDLDisplay_spacebar_is_pressed___impl( SDLDisplay recv );
 Image new_Image_from_file___impl( String path );
@@ -33,14 +37,34 @@ void Image_destroy___impl( Image recv );
 bigint Image_width___impl( Image recv );
 bigint Image_height___impl( Image recv );
 Rectangle new_Rectangle___impl( bigint x, bigint y, bigint w, bigint h );
-void Rectangle_x__eq___impl( Rectangle recv, bigint v );
+void Rectangle_x__assign___impl( Rectangle recv, bigint v );
 bigint Rectangle_x___impl( Rectangle recv );
-void Rectangle_y__eq___impl( Rectangle recv, bigint v );
+void Rectangle_y__assign___impl( Rectangle recv, bigint v );
 bigint Rectangle_y___impl( Rectangle recv );
-void Rectangle_w__eq___impl( Rectangle recv, bigint v );
+void Rectangle_w__assign___impl( Rectangle recv, bigint v );
 bigint Rectangle_w___impl( Rectangle recv );
-void Rectangle_h__eq___impl( Rectangle recv, bigint v );
+void Rectangle_h__assign___impl( Rectangle recv, bigint v );
 bigint Rectangle_h___impl( Rectangle recv );
 void Rectangle_destroy___impl( Rectangle recv );
+void Int_delay___impl( bigint recv );
+Font new_Font___impl( String name, bigint points );
+void Font_destroy___impl( Font recv );
+Image Font_render___impl( Font recv, String text, bigint r, bigint g, bigint b );
+
+#if SDL_TTF_MAJOR_VERSION >= 2 && ( SDL_TTF_MAJOR_VERSION > 2 || SDL_TTF_MINOR_VERSION > 0 || SDL_TTF_PATCHLEVEL > 9 )
+bigint Font_outline___impl( Font recv );
+void Font_outline__assign___impl( Font recv, bigint v );
+int Font_kerning___impl( Font recv );
+void Font_kerning__assign___impl( Font recv, int v );
+#endif
+
+bigint Font_height___impl( Font recv );
+bigint Font_ascent___impl( Font recv );
+bigint Font_descent___impl( Font recv );
+bigint Font_line_skip___impl( Font recv );
+int Font_is_fixed_width___impl( Font recv );
+nullable_String Font_family_name___impl( Font recv );
+nullable_String Font_style_name___impl( Font recv );
+bigint Font_width_of___impl( Font recv, String text );
 
 #endif

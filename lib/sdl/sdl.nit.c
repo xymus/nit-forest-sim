@@ -11,6 +11,15 @@ C implementation of sdl::SDLDisplay::init
 SDLDisplay new_SDLDisplay___impl( long int w, long int h )
 {
 	SDL_Init(SDL_INIT_VIDEO);
+	
+	if(TTF_Init()==-1) {
+		printf("TTF_Init: %s\n", TTF_GetError());
+		exit(2);
+	}
+	
+	/* ignores mousemotion for performance reasons */
+	SDL_EventState( SDL_MOUSEMOTION, SDL_IGNORE );
+	
 	return SDL_SetVideoMode( w, h, 24, SDL_HWSURFACE );
 }
 
@@ -21,6 +30,9 @@ void SDLDisplay_destroy___impl( SDLDisplay recv )
 {
 	if ( SDL_WasInit( SDL_INIT_VIDEO ) )
 		SDL_Quit();
+		
+	if ( TTF_WasInit() )
+		TTF_Quit();
 }
 
 /*
@@ -67,6 +79,14 @@ long int SDLDisplay_height___impl( SDLDisplay recv )
 }
 
 /*
+C implementation of sdl::SDLDisplay::fill_rect
+*/
+void SDLDisplay_fill_rect___impl( SDLDisplay recv, Rectangle rect, long int r, long int g, long int b )
+{
+	SDL_FillRect( recv, rect,  SDL_MapRGB(recv->format,r,g,b) );
+}
+
+/*
 C implementation of sdl::SDLDisplay::poll_event
 
 Imported methods signatures:
@@ -77,36 +97,40 @@ Imported methods signatures:
 nullable_Event SDLDisplay_poll_event___impl( SDLDisplay recv )
 {
     SDL_Event event;
+    
+	SDL_PumpEvents();
 
     if ( SDL_PollEvent(&event) )
+SDL_EventState( SDL_MOUSEMOTION, SDL_IGNORE );
     {
         switch (event.type ) {
-        case SDL_KEYDOWN:
-		case SDL_KEYUP:
-            printf("The \"%s\" key was pressed!\n",
-                   SDL_GetKeyName(event.key.keysym.sym));
-			/*if ( event.key.keysym.sym == SDLK_SPACE )*/
-			return KeyboardEvent_as_nullable_Event( new_KeyboardEvent( new_String_from_cstring( SDL_GetKeyName(event.key.keysym.sym) ),
-									  event.type==SDL_KEYDOWN ) );
-			/*break;*/
+		    case SDL_KEYDOWN:
+			case SDL_KEYUP:
+#ifdef DEBUG
+		        printf("The \"%s\" key was pressed!\n",
+		               SDL_GetKeyName(event.key.keysym.sym));
+#endif
+		               
+				return KeyboardEvent_as_nullable_Event( new_KeyboardEvent( new_String_from_cstring( SDL_GetKeyName(event.key.keysym.sym) ),
+										  event.type==SDL_KEYDOWN ) );
 			
-	/*	case SDL_MOUSEMOTION:
-			printf("Mouse moved by %d,%d to (%d,%d)\n", 
-				   event.motion.xrel, event.motion.yrel,
-				   event.motion.x, event.motion.y);
-			break;*/
+		/*	case SDL_MOUSEMOTION:
+				printf("Mouse moved by %d,%d to (%d,%d)\n", 
+					   event.motion.xrel, event.motion.yrel,
+					   event.motion.x, event.motion.y);*/
 			
-		case SDL_MOUSEBUTTONDOWN:
-		case SDL_MOUSEBUTTONUP:
-			printf("Mouse button \"%d\" pressed at (%d,%d)\n",
-				   event.button.button, event.button.x, event.button.y);
-			return MouseEvent_as_nullable_Event( new_MouseEvent( event.button.x, event.button.y, 
-								   event.button.button,
-								   event.type == SDL_MOUSEBUTTONDOWN ) );
-			/*break;*/
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+#ifdef DEBUG
+				printf("Mouse button \"%d\" pressed at (%d,%d)\n",
+					   event.button.button, event.button.x, event.button.y);
+#endif
+				return MouseEvent_as_nullable_Event( new_MouseEvent( event.button.x, event.button.y, 
+									   event.button.button,
+									   event.type == SDL_MOUSEBUTTONDOWN ) );
 			
-		case SDL_QUIT:
-			break;
+			case SDL_QUIT:
+				break;
         }
     }
     
@@ -141,9 +165,7 @@ Imported methods signatures:
 */
 Image new_Image_from_file___impl( String path )
 {
-	/*printf( "from native: %s\n", Nit_String_extract_native( env, path ) ); */
 	SDL_Surface *image = IMG_Load( String_to_cstring( path ) );
-	/*printf( "img -> %i\n", image );*/
 	return image;
 }
 
@@ -324,119 +346,192 @@ void Rectangle_destroy___impl( Rectangle recv )
 }
 
 /*
-C implementation of sdl::Point::init
-
-Point new_Point___impl( long int x, long int y )
-{
-	SDL_Rect *rect = malloc( sizeof( SDL_Rect ) );
-	rect->x = (Sint16)x;
-	rect->y = (Sint16)y;
-	return rect;
-}*/
-
-/*
-C implementation of sdl::Point::x=
-
-void Point_xeq___impl( Point recv, long int v )
-{
-	/ *recv->x = (Sint16)v;* /
-}
+C implementation of sdl::Int::delay
 */
+void Int_delay___impl( bigint recv )
+{
+	SDL_Delay( recv );
+}
+
 /*
-C implementation of sdl::Point::x
-
-long int Point_x___impl( Point recv )
-{
-	return 0; / *recv->x;* /
-}
-*/
-/*
-C implementation of sdl::Point::y=
-
-void Point_yeq___impl( Point recv, long int v )
-{
-	/ *recv->y = (Sint16)v;* 
-}
-*/
-/*
-C implementation of sdl::Point::y
-
-long int Point_y___impl( Point recv )
-{
-	return 0; / *recv->y;* /
-}
-*/
-/*
-C implementation of sdl::Point::destroy
-
-void Point_destroy___impl( Point recv )
-{
-}
-*/
-/*
-C implementation of sdl::Event::isa_mouse_event
-* /
-int Event_isa_mouse_event___impl( Event recv )
-{
-	return recv->type == SDL_MOUSEBUTTONDOWN;
-}
-
-/ *
-C implementation of sdl::Event::isa_keyboard_event
-* /
-int Event_isa_keyboard_event___impl( Event recv )
-{
-	return recv->type == SDL_KEYDOWN;
-}
-
-/ *
-C implementation of sdl::MouseEvent::x
-* /
-long int MouseEvent_x___impl( MouseEvent recv )
-{
-	return recv->button.x;
-}
-
-/ *
-C implementation of sdl::MouseEvent::y
-* /
-long int MouseEvent_y___impl( MouseEvent recv )
-{
-	return recv->button.y;
-}
-
-/ *
-C implementation of sdl::MouseEvent::button
-* /
-long int MouseEvent_button___impl( MouseEvent recv )
-{
-	return recv->button.button;
-}
-
-/ *
-C implementation of sdl::MouseEvent::down
-* /
-int MouseEvent_down___impl( MouseEvent recv )
-{
-	return recv->button.type == SDL_KEYDOWN;
-}
-
-/ *
-C implementation of sdl::KeyboardEvent::key_name
+C implementation of sdl::Font::init
 
 Imported methods signatures:
-	char* String_to_cstring( String recv ) for string::String::to_cstring
-* /
-String KeyboardEvent_key_name___impl( KeyboardEvent recv )
+	char * String__to_cstring( String recv ) for string::String::to_cstring
+*/
+Font new_Font___impl( String name, bigint points )
 {
-	return String_to_cstring( SDL_GetKeyName(recv->key.keysym.sym) );
+	char * cname = String_to_cstring( name );
+	
+	Font font = TTF_OpenFont( cname, (int)points);
+	if(!font) {
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		exit( 1 );
+	}
+	
+	return font;
 }
 
-/ *
-C implementation of sdl::KeyboardEvent::down
-* /
-int KeyboardEvent_down___impl( KeyboardEvent recv )
-{
-	return recv->key.type == SDL_KEYDOWN;
-}
+/*
+C implementation of sdl::Font::destroy
 */
+void Font_destroy___impl( Font recv )
+{
+	TTF_CloseFont( recv );
+}
+
+/*
+C implementation of sdl::Font::render
+
+Imported methods signatures:
+	char * String__to_cstring( String recv ) for string::String::to_cstring
+*/
+Image Font_render___impl( Font recv, String text, bigint r, bigint g, bigint b )
+{
+	SDL_Color color;
+	SDL_Surface *text_surface;
+	char *ctext;
+	
+	/*color = SDL_MapRGB(NULL,r,g,b);*/
+	color.r = r;
+	color.g = g;
+	color.b = b;
+	
+	ctext = String_to_cstring( text );
+	if( !(text_surface=TTF_RenderText_Blended( recv, ctext, color )) )
+	{
+		fprintf( stderr, "SDL TFF error: %s\n", TTF_GetError() );
+		exit( 1 );
+	}
+	else
+		return text_surface;
+}
+
+#if SDL_TTF_MAJOR_VERSION >= 2 && ( SDL_TTF_MAJOR_VERSION > 2 || SDL_TTF_MINOR_VERSION > 0 || SDL_TTF_PATCHLEVEL > 9 )
+	
+/*
+C implementation of sdl::Font::outline
+*/
+bigint Font_outline___impl( Font recv )
+{
+	return TTF_GetFontOutline( recv );
+}
+
+/*
+C implementation of sdl::Font::outline=
+*/
+void Font_outline__assign___impl( Font recv, bigint v )
+{
+	TTF_SetFontOutline( recv, v );
+}
+
+/*
+C implementation of sdl::Font::kerning
+*/
+int Font_kerning___impl( Font recv )
+{
+	return TTF_GetFontKerning( recv );
+}
+
+/*
+C implementation of sdl::Font::kerning=
+*/
+void Font_kerning__assign___impl( Font recv, int v )
+{
+	TTF_SetFontKerning( recv, v );
+}
+#endif
+
+/*
+C implementation of sdl::Font::height
+*/
+bigint Font_height___impl( Font recv )
+{
+	return TTF_FontHeight( recv );
+}
+
+/*
+C implementation of sdl::Font::ascent
+*/
+bigint Font_ascent___impl( Font recv )
+{
+	return TTF_FontAscent( recv );
+}
+
+/*
+C implementation of sdl::Font::descent
+*/
+bigint Font_descent___impl( Font recv )
+{
+	return TTF_FontDescent( recv );
+}
+
+/*
+C implementation of sdl::Font::line_skip
+*/
+bigint Font_line_skip___impl( Font recv )
+{
+	return TTF_FontLineSkip( recv );
+}
+
+/*
+C implementation of sdl::Font::is_fixed_width
+*/
+int Font_is_fixed_width___impl( Font recv )
+{
+	return TTF_FontFaceIsFixedWidth( recv );
+}
+
+/*
+C implementation of sdl::Font::family_name
+
+Imported methods signatures:
+	char * String_to_cstring( String recv ) for string::String::to_cstring
+	nullable_String String_as_nullable( String value ) to cast from String to nullable String
+*/
+nullable_String Font_family_name___impl( Font recv )
+{
+	char *fn = TTF_FontFaceFamilyName( recv );
+	
+	if ( fn == NULL )
+		return null_String();
+	else
+		return String_as_nullable( new_String_from_cstring( fn ) );
+}
+
+/*
+C implementation of sdl::Font::style_name
+
+Imported methods signatures:
+	char * String_to_cstring( String recv ) for string::String::to_cstring
+	nullable_String String_as_nullable( String value ) to cast from String to nullable String
+*/
+nullable_String Font_style_name___impl( Font recv )
+{
+	char *sn = TTF_FontFaceStyleName( recv );
+	
+	if ( sn == NULL )
+		return null_String();
+	else
+		return String_as_nullable( new_String_from_cstring( sn ) );
+}
+
+/*
+C implementation of sdl::Font::width_of
+
+Imported methods signatures:
+	String new_String_from_cstring( char * str ) for string::String::from_cstring
+*/
+bigint Font_width_of___impl( Font recv, String text )
+{
+	char *ctext = String_to_cstring( text );
+	int w;
+	if ( TTF_SizeText( recv, ctext, &w, NULL ) )
+	{
+		fprintf( stderr, "SDL TFF error: %s\n", TTF_GetError() );
+		exit( 1 );
+	}
+	else
+		return w;
+}
+
