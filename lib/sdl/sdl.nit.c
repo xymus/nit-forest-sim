@@ -255,7 +255,7 @@ Rectangle new_Rectangle___impl( long int x, long int y, long int w, long int h )
 /*
 C implementation of sdl::Rectangle::x=
 */
-void Rectangle_x__eq___impl( Rectangle recv, long int v )
+void Rectangle_x__assign___impl( Rectangle recv, long int v )
 {
 	recv->x = (Sint16)v;
 }
@@ -271,7 +271,7 @@ long int Rectangle_x___impl( Rectangle recv )
 /*
 C implementation of sdl::Rectangle::y=
 */
-void Rectangle_y__eq___impl( Rectangle recv, long int v )
+void Rectangle_y__assign___impl( Rectangle recv, long int v )
 {
 	recv->y = (Sint16)v;
 }
@@ -287,7 +287,7 @@ long int Rectangle_y___impl( Rectangle recv )
 /*
 C implementation of sdl::Rectangle::w=
 */
-void Rectangle_w__eq___impl( Rectangle recv, long int v )
+void Rectangle_w__assign___impl( Rectangle recv, long int v )
 {
 	recv->w = (Uint16)v;
 }
@@ -303,7 +303,7 @@ long int Rectangle_w___impl( Rectangle recv )
 /*
 C implementation of sdl::Rectangle::h=
 */
-void Rectangle_h__eq___impl( Rectangle recv, long int v )
+void Rectangle_h__assign___impl( Rectangle recv, long int v )
 {
 	recv->h = (Uint16)v;
 }

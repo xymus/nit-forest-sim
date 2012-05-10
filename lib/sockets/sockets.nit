@@ -1,16 +1,15 @@
-universal Writable
+interface Writable
     # write string to socket
 	fun write( s : String ) is abstract
 end
 
-universal Readable
+interface Readable
     # attepts to read a string from the socket
 	fun read : nullable String is abstract
 end
 
 # socket for communications
-universal CommunicationSocket
-special Pointer
+extern CommunicationSocket
 special Readable
 special Writable
     # create a new CommunicationSocket connected to the remote address and port
@@ -27,8 +26,7 @@ special Writable
 end
 
 # socket to accept incomming connections and open communication sockets
-universal ListeningSocket
-special Pointer
+extern ListeningSocket
 	# bind and listen to specified address and port
 	new bind_to( address : String, port : Int ) is extern import String::to_cstring
 	

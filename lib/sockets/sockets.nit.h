@@ -16,8 +16,6 @@
 #define CommunicationSocket int*
 #define ListeningSocket int*
 
-#include <nitni.h>
-
 #include <sockets._nitni.h>
 
 CommunicationSocket new_CommunicationSocket_connect_to___impl( String address, bigint port );

@@ -1,7 +1,7 @@
 
 module sdl
 
-universal SDLDisplay special Pointer
+extern SDLDisplay
 #	var readable Image _screen
 
 	new ( w, h : Int) is extern # force initialisation at instanciation?
@@ -45,7 +45,7 @@ universal SDLDisplay special Pointer
 	fun spacebar_is_pressed : Bool is extern
 end
 
-universal Image special Pointer
+extern Image
     new from_file( path : String ) is extern import String::to_cstring
     new partial( original : Image, clip : Rectangle ) is extern
     new copy_of( image : Image ) is extern
@@ -71,7 +71,7 @@ universal Image special Pointer
     #fun get_subimage( clip : Rectangle ) : Image is extern
 end
 
-universal Rectangle special Pointer
+extern Rectangle
 	new ( x : Int, y : Int, w : Int, h : Int ) is extern
 	#new is extern
 
