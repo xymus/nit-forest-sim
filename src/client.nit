@@ -17,7 +17,7 @@ redef class ThinForest
         # trees
         for x in [ 0 .. w [ do for y in [ 0 .. h [
         do
-            print "{x} {y}"
+            #print "{x} {y}"
             var case = grid[ x ][ y ]
             case.termite_count = 0
             case.lumberjack_count = 0
